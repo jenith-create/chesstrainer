@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chess Trainer</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="top">
+  <h1>Chess Trainer</h1>
+  <p>Step 1: a playable board with legal moves</p>
+</header>
+
+<main class="app">
+
+  <!-- The board: JavaScript fills this with 64 squares -->
+  <section class="board-wrap">
+    <div id="board" aria-label="Chess board"></div>
+  </section>
+
+  <!-- Side panel: status, buttons, move list -->
+  <aside class="panel">
+    <p id="status" role="status"></p>
+
+    <div class="buttons">
+      <button id="newBtn">New game</button>
+      <button id="undoBtn">Undo</button>
+      <button id="flipBtn">Flip board</button>
+    </div>
+
+    <h2>Moves</h2>
+    <ol id="moves"></ol>
+  </aside>
+
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
