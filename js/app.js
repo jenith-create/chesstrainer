@@ -1,16 +1,22 @@
 // chess.js knows the rules of chess. We only draw the board and handle clicks.
 import { Chess } from "./chess.js";
+import { BOTS } from "./bot.js";
 
 // ---------- State (the things that change) ----------
 const game = new Chess();   // the game: pieces, whose turn, move history
 let selected = null;        // the square the player tapped first, like "e2"
 let lastMove = null;        // the last move made, so we can highlight it
 let flipped = false;        // false = white at the bottom
+let playerColor = "w";      // which side the human plays: "w" or "b"
+let bot = BOTS[0];          // the opponent
+let thinking = false;       // true while the bot is "thinking"
 
 // ---------- Page elements ----------
 const boardEl  = document.getElementById("board");
 const statusEl = document.getElementById("status");
 const movesEl  = document.getElementById("moves");
+const botSel   = document.getElementById("botSel");
+const sideSel  = document.getElementById("sideSel");
 
 // The "\uFE0E" after the pawn stops phones from turning it into an emoji
 const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟\uFE0E" };
@@ -92,15 +98,17 @@ function findKing(color) {
 }
 
 function renderStatus() {
-  const side = game.turn() === "w" ? "White" : "Black";
-  const other = game.turn() === "w" ? "Black" : "White";
-
-  if (game.isCheckmate())            statusEl.textContent = `Checkmate. ${other} wins.`;
-  else if (game.isStalemate())       statusEl.textContent = "Draw by stalemate.";
-  else if (game.isThreefoldRepetition()) statusEl.textContent = "Draw by repetition.";
+  if (game.isCheckmate()) {
+    // The side to move has been mated, so the other side won.
+    const winner = game.turn() === "w" ? "b" : "w";
+    statusEl.textContent = winner === playerColor ? "Checkmate. You win!" : "Checkmate. The bot wins.";
+  }
+  else if (game.isStalemate())            statusEl.textContent = "Draw by stalemate.";
+  else if (game.isThreefoldRepetition())  statusEl.textContent = "Draw by repetition.";
   else if (game.isInsufficientMaterial()) statusEl.textContent = "Draw: not enough pieces to mate.";
-  else if (game.isDraw())            statusEl.textContent = "Draw.";
-  else statusEl.textContent = `${side} to move` + (game.inCheck() ? " (check!)" : "");
+  else if (game.isDraw())                 statusEl.textContent = "Draw.";
+  else if (thinking)                      statusEl.textContent = "The bot is thinking...";
+  else statusEl.textContent = "Your move" + (game.inCheck() ? " (check!)" : "");
 }
 
 function renderMoves() {
@@ -116,7 +124,8 @@ function renderMoves() {
 
 // ---------- Handling clicks and taps ----------
 function onSquareClick(square) {
-  if (game.isGameOver()) return;
+  // Ignore clicks if the game is over, the bot is thinking, or it's not our turn.
+  if (game.isGameOver() || thinking || game.turn() !== playerColor) return;
 
   // If a piece is already selected, this click might be its move.
   if (selected) {
@@ -128,7 +137,8 @@ function onSquareClick(square) {
       // chess.js throws an error if the move is illegal
       lastMove = game.move({ from: selected, to: square, promotion: "q" });
       selected = null;
-      return render();
+      render();
+      return maybeBotMove();              // now it's the bot's turn
     } catch (err) {
       // Not a legal move. Fall through: maybe the player is picking another piece.
     }
@@ -139,20 +149,57 @@ function onSquareClick(square) {
   render();
 }
 
-// ---------- Buttons ----------
-document.getElementById("newBtn").addEventListener("click", () => {
+// ---------- The bot's turn ----------
+function maybeBotMove() {
+  if (game.isGameOver() || game.turn() === playerColor) return;
+
+  thinking = true;
+  renderStatus();
+
+  // setTimeout lets the browser redraw first, so "thinking..." shows up,
+  // and gives the bot's reply a natural short pause.
+  setTimeout(() => {
+    const move = bot.pick(game);       // ask the bot for a move (like "Nf6")
+    lastMove = game.move(move);        // play it
+    thinking = false;
+    render();
+  }, 400);
+}
+
+// ---------- Starting a game ----------
+function newGame() {
   game.reset();
   selected = null;
   lastMove = null;
+  thinking = false;
+  playerColor = sideSel.value;
+  bot = BOTS.find(b => b.id === botSel.value);
+  flipped = playerColor === "b";       // show the board from the player's side
   render();
-});
+  maybeBotMove();                      // if the player is Black, the bot moves first
+}
+
+// ---------- Buttons and dropdowns ----------
+for (const b of BOTS) {
+  const opt = document.createElement("option");
+  opt.value = b.id;
+  opt.textContent = b.name;
+  botSel.appendChild(opt);
+}
+
+document.getElementById("newBtn").addEventListener("click", newGame);
+botSel.addEventListener("change", newGame);
+sideSel.addEventListener("change", newGame);
 
 document.getElementById("undoBtn").addEventListener("click", () => {
-  game.undo();
+  if (thinking) return;
+  game.undo();                                                    // undo the last move
+  if (game.turn() !== playerColor && game.history().length > 0) game.undo();   // and the one before, so it's our turn
   selected = null;
   const history = game.history({ verbose: true });
   lastMove = history.length ? history[history.length - 1] : null;
   render();
+  maybeBotMove();   // only does something if it's the bot's turn (for example, an empty board as Black)
 });
 
 document.getElementById("flipBtn").addEventListener("click", () => {
@@ -161,4 +208,4 @@ document.getElementById("flipBtn").addEventListener("click", () => {
 });
 
 // ---------- Start ----------
-render();
+newGame();

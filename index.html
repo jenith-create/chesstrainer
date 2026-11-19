@@ -10,7 +10,7 @@
 
 <header class="top">
   <h1>Chess Trainer</h1>
-  <p>Step 1: a playable board with legal moves</p>
+  <p>Step 2: play against a bot</p>
 </header>
 
 <main class="app">
@@ -20,8 +20,20 @@
     <div id="board" aria-label="Chess board"></div>
   </section>
 
-  <!-- Side panel: status, buttons, move list -->
+  <!-- Side panel: options, status, buttons, move list -->
   <aside class="panel">
+    <div class="opts">
+      <label>Opponent
+        <select id="botSel"></select>
+      </label>
+      <label>You play
+        <select id="sideSel">
+          <option value="w">White</option>
+          <option value="b">Black</option>
+        </select>
+      </label>
+    </div>
+
     <p id="status" role="status"></p>
 
     <div class="buttons">
