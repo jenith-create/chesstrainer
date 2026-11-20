@@ -94,8 +94,22 @@ function thinkerBot(game, depth = 2) {
 }
 
 // ---------- The list the app uses ----------
+// `elo` is an ESTIMATE of playing strength, so players know how hard a bot is.
+// These numbers are educated guesses, not measured. Later we can check them by
+// having the bots play against Stockfish at a known Elo.
 export const BOTS = [
-  { id: "random",  name: "Rookie (random moves)",     pick: randomBot },
-  { id: "greedy",  name: "Greedy (grabs pieces)",     pick: greedyBot },
-  { id: "thinker", name: "Thinker (looks ahead)",     pick: g => thinkerBot(g, 2) }
+  { id: "random",  name: "Rookie",  elo: 250, pick: randomBot },
+  { id: "greedy",  name: "Greedy",  elo: 600, pick: greedyBot },
+  { id: "thinker", name: "Thinker", elo: 900, pick: g => thinkerBot(g, 2) }
 ];
+
+// Turn a number into words that anyone understands.
+export function levelName(elo) {
+  if (elo < 600)  return "Beginner";
+  if (elo < 1000) return "Novice";
+  if (elo < 1400) return "Intermediate";
+  if (elo < 1800) return "Club player";
+  if (elo < 2200) return "Advanced";
+  if (elo < 2600) return "Expert";
+  return "Master level";
+}

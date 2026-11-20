@@ -1,6 +1,6 @@
 // chess.js knows the rules of chess. We only draw the board and handle clicks.
 import { Chess } from "./chess.js";
-import { BOTS } from "./bot.js";
+import { BOTS, levelName } from "./bot.js";
 
 // ---------- State (the things that change) ----------
 const game = new Chess();   // the game: pieces, whose turn, move history
@@ -17,6 +17,7 @@ const statusEl = document.getElementById("status");
 const movesEl  = document.getElementById("moves");
 const botSel   = document.getElementById("botSel");
 const sideSel  = document.getElementById("sideSel");
+const botInfo  = document.getElementById("botInfo");
 
 // The "\uFE0E" after the pawn stops phones from turning it into an emoji
 const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟\uFE0E" };
@@ -174,6 +175,7 @@ function newGame() {
   thinking = false;
   playerColor = sideSel.value;
   bot = BOTS.find(b => b.id === botSel.value);
+  botInfo.textContent = `Elo ~${bot.elo} · ${levelName(bot.elo)}`;
   flipped = playerColor === "b";       // show the board from the player's side
   render();
   maybeBotMove();                      // if the player is Black, the bot moves first
@@ -183,7 +185,7 @@ function newGame() {
 for (const b of BOTS) {
   const opt = document.createElement("option");
   opt.value = b.id;
-  opt.textContent = b.name;
+  opt.textContent = `${b.name} (Elo ~${b.elo})`;
   botSel.appendChild(opt);
 }
 
