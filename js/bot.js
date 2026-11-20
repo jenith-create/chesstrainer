@@ -1,3 +1,5 @@
+import { engineMove } from "./engine.js";
+
 // A bot is just a function: give it the game, it returns a move.
 // Every bot below has the same shape, so the app can swap them freely.
 // Later, Stockfish will be one more bot in this list.
@@ -94,13 +96,30 @@ function thinkerBot(game, depth = 2) {
 }
 
 // ---------- The list the app uses ----------
-// `elo` is an ESTIMATE of playing strength, so players know how hard a bot is.
-// These numbers are educated guesses, not measured. Later we can check them by
-// having the bots play against Stockfish at a known Elo.
+// `elo` tells players how hard a bot is.
+// - Rookie, Greedy, Thinker are our own simple bots: their Elo is an ESTIMATE.
+// - The Stockfish bots limit the real engine to that Elo, which is much more reliable.
+//   (Stockfish's lowest setting is about 1320.)
+// A bot's `pick` can return a move right away, or a promise (Stockfish does).
+const stockfishBot = (id, name, elo) => ({
+  id, name, elo,
+  pick: g => engineMove(g.fen(), bot_elo(id))
+});
+
+// Look up the current Elo of a Stockfish bot (the custom one can change).
+function bot_elo(id) {
+  return BOTS.find(b => b.id === id).elo;
+}
+
 export const BOTS = [
   { id: "random",  name: "Rookie",  elo: 250, pick: randomBot },
   { id: "greedy",  name: "Greedy",  elo: 600, pick: greedyBot },
-  { id: "thinker", name: "Thinker", elo: 900, pick: g => thinkerBot(g, 2) }
+  { id: "thinker", name: "Thinker", elo: 900, pick: g => thinkerBot(g, 2) },
+  stockfishBot("sf1400", "Club Player",  1400),
+  stockfishBot("sf1800", "Advanced",     1800),
+  stockfishBot("sf2200", "Expert",       2200),
+  stockfishBot("sf2800", "Master",       2800),
+  { ...stockfishBot("custom", "Custom Stockfish", 1500), custom: true }
 ];
 
 // Turn a number into words that anyone understands.

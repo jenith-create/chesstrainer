@@ -171,3 +171,14 @@ select {
   font-size: .9rem;
   font-weight: 600;
 }
+
+/* ---------- Step 3: custom Elo slider ---------- */
+[hidden] { display: none !important; }
+input[type="range"] { width: 100%; margin-top: 8px; accent-color: var(--accent); }
+
+/* ---------- Step 4: tabs and puzzle info ---------- */
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+.tab { background: transparent; }
+.tab.on { background: linear-gradient(135deg, var(--accent), #818cf8); color: #0b1020; border-color: transparent; font-weight: 700; }
+.puzzleinfo { margin: 0 0 10px; color: var(--mute); font-size: .9rem; min-height: 1.3em; }
+#puzzleButtons, #playButtons { margin-top: 4px; }

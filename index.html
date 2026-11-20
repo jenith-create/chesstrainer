@@ -10,7 +10,7 @@
 
 <header class="top">
   <h1>Chess Trainer</h1>
-  <p>Pick an opponent by Elo rating and play</p>
+  <p>Play bots by Elo, or train with puzzles</p>
 </header>
 
 <main class="app">
@@ -20,27 +20,57 @@
     <div id="board" aria-label="Chess board"></div>
   </section>
 
-  <!-- Side panel: options, status, buttons, move list -->
+  <!-- Side panel -->
   <aside class="panel">
-    <div class="opts">
-      <label>Opponent
-        <select id="botSel"></select>
-      </label>
-      <label>You play
-        <select id="sideSel">
-          <option value="w">White</option>
-          <option value="b">Black</option>
-        </select>
-      </label>
+
+    <div class="tabs">
+      <button id="tabPlay" class="tab on">Play a bot</button>
+      <button id="tabPuzzle" class="tab">Puzzles</button>
     </div>
 
-    <p id="botInfo" class="botinfo"></p>
+    <!-- Play mode -->
+    <div id="playBox">
+      <div class="opts">
+        <label>Opponent
+          <select id="botSel"></select>
+        </label>
+        <label>You play
+          <select id="sideSel">
+            <option value="w">White</option>
+            <option value="b">Black</option>
+          </select>
+        </label>
+      </div>
+
+      <div id="customBox" class="opts" hidden>
+        <label>Custom Elo: <b id="eloVal">1500</b>
+          <input type="range" id="eloSlider" min="1350" max="3000" step="50" value="1500">
+        </label>
+      </div>
+
+      <p id="botInfo" class="botinfo"></p>
+    </div>
+
+    <!-- Puzzle mode -->
+    <div id="puzzleBox" hidden>
+      <p class="botinfo">
+        Your puzzle rating: <b id="pRating">1000</b> &middot; Streak: <b id="pStreak">0</b>
+      </p>
+      <p id="puzzleInfo" class="puzzleinfo"></p>
+    </div>
+
     <p id="status" role="status"></p>
 
-    <div class="buttons">
+    <div class="buttons" id="playButtons">
       <button id="newBtn">New game</button>
       <button id="undoBtn">Undo</button>
       <button id="flipBtn">Flip board</button>
+    </div>
+
+    <div class="buttons" id="puzzleButtons" hidden>
+      <button id="hintBtn">Hint</button>
+      <button id="nextBtn">Next puzzle</button>
+      <button id="flipBtn2">Flip board</button>
     </div>
 
     <h2>Moves</h2>
